@@ -1,0 +1,84 @@
+#include <Servo.h>  //Servo library
+Servo entry_gate;   //Creating object for entry servo
+Servo exit_gate;    //Creating object for exit servo
+int us1_trig=12,us1_echo=11,us2_trig=6,us2_echo=5;  //trig and echo pins of both US sensors
+int servo_1=13,servo_2=4;                           //signal of servo motors   
+int ir_1=10,ir_2=9,ir_3=8,ir_4=7;                   //signal of IR sensors
+int led_r=3,led_b=2,led_g=1,led_y=0;                //connection of leds
+float distance1, time1, distance2, time2;
+void setup()
+{
+  entry_gate.attach(servo_1);
+  exit_gate.attach(servo_2);
+  pinMode(led_r, OUTPUT);
+  pinMode(led_b, OUTPUT);
+  pinMode(led_g, OUTPUT);
+  pinMode(led_y, OUTPUT);
+  pinMode(ir_1, INPUT);
+  pinMode(ir_2, INPUT);
+  pinMode(ir_3, INPUT);
+  pinMode(ir_4, INPUT);
+  pinMode(us1_trig, OUTPUT);
+  pinMode(us2_trig, OUTPUT);
+  pinMode(us1_echo, INPUT);
+  pinMode(us2_echo, INPUT);
+  pinMode(servo_1, OUTPUT);
+  pinMode(servo_2, OUTPUT);
+}
+
+void loop()
+{
+  // Entry Gate
+  digitalWrite(us1_trig, LOW);
+  delayMicroseconds(100);
+  digitalWrite(us1_trig, HIGH);     //creating pulse
+  delayMicroseconds(10);
+  digitalWrite(us1_trig, LOW);
+  time1 = pulseIn(us1_echo, HIGH);  //time for receiving pulse
+  distance1 = time1 * 0.000343 / 2; //distance in meteres
+  if(distance1 <= 1)        //limit of 1 meter
+  {
+    entry_gate.write(90);   //gate opening 90 degrees.
+  }
+  else
+  {
+    entry_gate.write(0);   //gate closed
+  }
+  
+  //Menu Items
+  menu(ir_1, led_r);   //menu item A
+  menu(ir_2, led_b);   //menu item B
+  menu(ir_3, led_g);   //menu item C
+  menu(ir_4, led_y);   //menu item D
+  
+  //Exit Gate
+  digitalWrite(us2_trig, LOW);
+  delayMicroseconds(100);
+  digitalWrite(us2_trig, HIGH);      //creating pulse
+  delayMicroseconds(10);
+  digitalWrite(us2_trig, LOW);
+  time2 = pulseIn(us2_echo, HIGH);   //time to receive pulse
+  distance2 = time2 * 0.000343 / 2;  //distance in meteres
+  if(distance2 <= 1)    //limit of 1 meter
+  {
+    exit_gate.write(90);  //gate opening 90 degree
+  }
+  else
+  {
+    exit_gate.write(0);   //gate closed
+  }
+}
+
+void menu(int ir, int led)
+{
+  int order;
+  order = digitalRead(ir);   //taking input from IR
+  if(order == HIGH)
+  {
+    digitalWrite(led,HIGH);  //corresponding LED on for menu item
+  }
+  else
+  {
+    digitalWrite(led,LOW);
+  }
+}
